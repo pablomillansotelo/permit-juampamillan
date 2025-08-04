@@ -1,0 +1,25 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "API de Juampa",
+    "version": "1.0.0",
+    "description": "Documentación de la API usando Bao.js y Swagger"
+  },
+  "paths": {
+    "/ping": {
+      "get": {
+        "summary": "Ping de prueba",
+        "responses": {
+          "200": {
+            "description": "Respuesta exitosa",
+            "content": {
+              "application/json": {
+                "example": { "mensaje": "pong" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
