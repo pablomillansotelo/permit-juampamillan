@@ -36,12 +36,13 @@ export interface RateLimitResult {
  */
 function cleanupExpiredEntries() {
   const now = Date.now();
-  for (const [key, entry] of rateLimitStore.entries()) {
+  rateLimitStore.forEach((entry, key) => {
     if (entry.resetAt < now) {
       rateLimitStore.delete(key);
     }
-  }
+  });
 }
+
 
 /**
  * Limpia entradas expiradas cada 5 minutos

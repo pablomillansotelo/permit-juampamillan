@@ -16,9 +16,18 @@ export async function applyRateLimit(
   type: 'get' | 'mutation' = 'get'
 ): Promise<RateLimitResponse> {
   const session = await auth();
-  const identifier = session?.user?.email || request.ip || 'unknown';
-  
-  const rateLimitResult = type === 'get' 
+  // Fix: NextRequest does not have 'ip' property; use x-forwarded-for header as fallback.
+  let identifier: string | undefined = session?.user?.email ?? undefined;
+  if (!identifier) {
+    const xff = request.headers.get('x-forwarded-for');
+    if (xff) {
+      identifier = xff.split(',')[0].trim();
+    } else {
+      identifier = 'unknown';
+    }
+  }
+
+  const rateLimitResult = type === 'get'
     ? rateLimit.get(identifier)
     : rateLimit.mutation(identifier);
 
