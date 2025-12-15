@@ -1,6 +1,8 @@
 import { Resource, resourcesApi } from '@/lib/api-server';
 import { ResourcesPageClient } from './resources-page-client';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ResourcesPage() {
   let resources: Resource[] = [];
   try {

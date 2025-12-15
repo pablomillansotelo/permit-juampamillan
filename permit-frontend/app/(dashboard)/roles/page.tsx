@@ -2,6 +2,8 @@ import { Role, rolesApi } from '@/lib/api-server';
 import { RolesTable } from './roles-table';
 import { RolesPageClient } from './roles-page-client';
 
+export const dynamic = 'force-dynamic';
+
 export default async function RolesPage() {
   // Fetch initial data
   let roles: Role[] = [];
