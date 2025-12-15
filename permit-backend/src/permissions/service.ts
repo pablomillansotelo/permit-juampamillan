@@ -217,7 +217,7 @@ export class PermissionsService {
 		}
 	}
 
-		/**
+	/**
 	 * Eliminar un permiso
 	 */
 	static async deletePermission(id: number) {
@@ -225,10 +225,30 @@ export class PermissionsService {
 			// Obtener el permiso antes de eliminarlo (con el nombre del recurso)
 			const permission = await this.getPermissionById(id)
 
+			// Verificar dependencias: roles con este permiso asignado
+			const { rolePermissions } = await import('../role-permissions/schema.js')
+			
+			const rolesWithPermission = await db
+				.select()
+				.from(rolePermissions)
+				.where(eq(rolePermissions.permissionId, id))
+				.limit(1)
+			
+			if (rolesWithPermission.length > 0) {
+				throw new Error(
+					`No se puede eliminar el permiso porque está asignado a uno o más roles. ` +
+					`Primero remueve el permiso de todos los roles.`
+				)
+			}
+
 			await db.delete(permissions).where(eq(permissions.id, id))
 			
 			return permission
-		} catch (error) {
+		} catch (error: any) {
+			// Si el error ya tiene un mensaje descriptivo, lanzarlo tal cual
+			if (error.message && error.message.includes('No se puede eliminar')) {
+				throw error
+			}
 			throw new Error(`Error al eliminar permiso: ${error}`)
 		}
 	}

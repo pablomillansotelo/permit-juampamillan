@@ -14,6 +14,9 @@ import Link from 'next/link';
 export async function User() {
   let session = await auth();
   let user = session?.user;
+  
+  // Obtener el nombre del usuario, con fallbacks
+  const userName = user?.name || user?.email?.split('@')[0] || 'Usuario';
 
   return (
     <DropdownMenu>
@@ -33,10 +36,16 @@ export async function User() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel>{userName}</DropdownMenuLabel>
+        {user?.email && (
+          <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+            {user.email}
+          </DropdownMenuLabel>
+        )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Settings</DropdownMenuItem>
-        <DropdownMenuItem>Support</DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/settings">Configuración</Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         {user ? (
           <DropdownMenuItem>
@@ -46,12 +55,12 @@ export async function User() {
                 await signOut();
               }}
             >
-              <button type="submit">Sign Out</button>
+              <button type="submit" className="w-full text-left">Cerrar sesión</button>
             </form>
           </DropdownMenuItem>
         ) : (
           <DropdownMenuItem>
-            <Link href="/login">Sign In</Link>
+            <Link href="/login">Iniciar sesión</Link>
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

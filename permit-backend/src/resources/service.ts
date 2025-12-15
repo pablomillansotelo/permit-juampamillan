@@ -130,10 +130,30 @@ export class ResourcesService {
 			// Verificar que el recurso existe
 			await this.getResourceById(id)
 
+			// Verificar dependencias: permisos asociados a este recurso
+			const { permissions } = await import('../permissions/schema.js')
+			
+			const permissionsWithResource = await db
+				.select()
+				.from(permissions)
+				.where(eq(permissions.resourceId, id))
+				.limit(1)
+			
+			if (permissionsWithResource.length > 0) {
+				throw new Error(
+					`No se puede eliminar el recurso porque tiene permisos asociados. ` +
+					`Primero elimina o reasigna todos los permisos de este recurso.`
+				)
+			}
+
 			const result = await db.delete(resources).where(eq(resources.id, id)).returning()
 			
 			return result[0]!
-		} catch (error) {
+		} catch (error: any) {
+			// Si el error ya tiene un mensaje descriptivo, lanzarlo tal cual
+			if (error.message && error.message.includes('No se puede eliminar')) {
+				throw error
+			}
 			throw new Error(`Error al eliminar recurso: ${error}`)
 		}
 	}

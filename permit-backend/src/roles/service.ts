@@ -130,10 +130,43 @@ export class RolesService {
 			// Verificar que el rol existe
 			await this.getRoleById(id)
 
+			// Verificar dependencias: usuarios con este rol asignado
+			const { userRoles } = await import('../user-roles/schema.js')
+			const { rolePermissions } = await import('../role-permissions/schema.js')
+			
+			const usersWithRole = await db
+				.select()
+				.from(userRoles)
+				.where(eq(userRoles.roleId, id))
+				.limit(1)
+			
+			if (usersWithRole.length > 0) {
+				throw new Error(
+					`No se puede eliminar el rol porque hay usuarios asignados. ` +
+					`Primero remueve el rol de todos los usuarios.`
+				)
+			}
+
+			// Verificar si tiene permisos asignados (aunque se eliminarán en cascade, es bueno informar)
+			const rolePerms = await db
+				.select()
+				.from(rolePermissions)
+				.where(eq(rolePermissions.roleId, id))
+				.limit(1)
+			
+			if (rolePerms.length > 0) {
+				// Avisar pero permitir eliminación (se eliminarán en cascade)
+				console.warn(`El rol tiene ${rolePerms.length} permisos asignados que se eliminarán automáticamente`)
+			}
+
 			const result = await db.delete(roles).where(eq(roles.id, id)).returning()
 			
 			return result[0]!
-		} catch (error) {
+		} catch (error: any) {
+			// Si el error ya tiene un mensaje descriptivo, lanzarlo tal cual
+			if (error.message && error.message.includes('No se puede eliminar')) {
+				throw error
+			}
 			throw new Error(`Error al eliminar rol: ${error}`)
 		}
 	}

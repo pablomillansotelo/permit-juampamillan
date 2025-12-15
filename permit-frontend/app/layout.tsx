@@ -3,9 +3,9 @@ import './globals.css';
 import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {
-  title: 'Next.js App Router + NextAuth + Tailwind CSS',
+  title: 'Permit - Sistema de Gestión RBAC',
   description:
-    'A user admin dashboard configured with Next.js, Postgres, NextAuth, Tailwind CSS, TypeScript, and Prettier.'
+    'Sistema completo de gestión de permisos basado en roles (RBAC). Administra usuarios, roles, recursos y permisos de forma eficiente.'
 };
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="es" suppressHydrationWarning>
       <body className="flex min-h-screen w-full flex-col">{children}</body>
       <Analytics />
     </html>
