@@ -1,8 +1,8 @@
-import { usersApi } from '@/lib/api-server';
+import { usersApi, type User } from '@/lib/api-server';
 import { UsersPageClient } from './users-page-client';
 
 export default async function UsersPage() {
-  let users = [];
+  let users: User[] = [];
   try {
     users = await usersApi.getAll();
   } catch (error) {
