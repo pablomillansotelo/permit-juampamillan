@@ -17,7 +17,11 @@ export const roles = new Elysia({ prefix: '/roles' })
 			}
 		},
 		{
-			response: RolesModel.rolesList
+			response: RolesModel.rolesList,
+			detail: {
+				tags: ['roles'],
+				summary: 'Obtener todos los roles',
+			},
 		}
 	)
 
@@ -35,7 +39,11 @@ export const roles = new Elysia({ prefix: '/roles' })
 			}
 		},
 		{
-			response: RolesModel.roleResponse
+			response: RolesModel.roleResponse,
+			detail: {
+				tags: ['roles'],
+				summary: 'Obtener un rol por ID',
+			},
 		}
 	)
 
@@ -57,7 +65,11 @@ export const roles = new Elysia({ prefix: '/roles' })
 		},
 		{
 			body: RolesModel.createBody,
-			response: RolesModel.roleResponse
+			response: RolesModel.roleResponse,
+			detail: {
+				tags: ['roles'],
+				summary: 'Crear un nuevo rol',
+			},
 		}
 	)
 
@@ -79,7 +91,11 @@ export const roles = new Elysia({ prefix: '/roles' })
 		},
 		{
 			body: RolesModel.updateBody,
-			response: RolesModel.roleResponse
+			response: RolesModel.roleResponse,
+			detail: {
+				tags: ['roles'],
+				summary: 'Actualizar un rol',
+			},
 		}
 	)
 
@@ -103,7 +119,11 @@ export const roles = new Elysia({ prefix: '/roles' })
 			response: t.Object({
 				message: t.String(),
 				role: RolesModel.roleResponse
-			})
+			}),
+			detail: {
+				tags: ['roles'],
+				summary: 'Eliminar un rol',
+			},
 		}
 	)
 	.compile()

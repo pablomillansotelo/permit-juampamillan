@@ -34,7 +34,11 @@ export const rolePermissions = new Elysia({ prefix: '/role-permissions' })
 					permissionId: t.Number(),
 					createdAt: t.Date()
 				})
-			})
+			}),
+			detail: {
+				tags: ['role-permissions'],
+				summary: 'Asignar un permiso a un rol',
+			},
 		}
 	)
 
@@ -66,7 +70,11 @@ export const rolePermissions = new Elysia({ prefix: '/role-permissions' })
 					permissionId: t.Number(),
 					createdAt: t.Date()
 				})
-			})
+			}),
+			detail: {
+				tags: ['role-permissions'],
+				summary: 'Remover un permiso de un rol',
+			},
 		}
 	)
 
@@ -95,7 +103,11 @@ export const rolePermissions = new Elysia({ prefix: '/role-permissions' })
 					resourceName: t.Nullable(t.String()),
 					createdAt: t.Date()
 				})
-			)
+			),
+			detail: {
+				tags: ['role-permissions'],
+				summary: 'Obtener todos los permisos de un rol',
+			},
 		}
 	)
 
@@ -121,7 +133,11 @@ export const rolePermissions = new Elysia({ prefix: '/role-permissions' })
 					permissionId: t.Number(),
 					createdAt: t.Date()
 				})
-			)
+			),
+			detail: {
+				tags: ['role-permissions'],
+				summary: 'Obtener todos los roles que tienen un permiso',
+			},
 		}
 	)
 	.compile()

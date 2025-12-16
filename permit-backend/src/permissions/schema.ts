@@ -1,5 +1,5 @@
 import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
-import { resources } from "../resources/schema.js";
+import { resources } from "../resources/schema";
 import { relations } from "drizzle-orm";
 
 export const permissions = pgTable("permissions", {

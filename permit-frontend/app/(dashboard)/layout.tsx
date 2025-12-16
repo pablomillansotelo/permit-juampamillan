@@ -7,7 +7,11 @@ import {
   PanelLeft,
   Settings,
   Key,
-  UserCheck
+  UserCheck,
+  Network,
+  Calendar,
+  TrendingUp,
+  FileSearch
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -22,7 +26,8 @@ import { User } from './users/user';
 import Providers from './providers';
 import { NavItem } from './nav-item';
 import { PageTitle } from './page-title';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { NotificationBell } from '@/components/notifications/notification-bell';
+import { AppLauncher } from '@/components/app-launcher';
 
 export default function DashboardLayout({
   children
@@ -38,7 +43,8 @@ export default function DashboardLayout({
             <MobileNav />
             <PageTitle />
             <div className="flex-1" />
-            <ThemeToggle />
+            <NotificationBell />
+            <AppLauncher />
             <User />
           </header>
           <main className="grid flex-1 items-start gap-1 p-2 sm:px-6 sm:py-0 md:gap-2 bg-background">
@@ -55,15 +61,7 @@ function DesktopNav() {
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
       <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
-        <Link
-          href="/"
-          className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
-        >
-          <Shield className="h-4 w-4 transition-all group-hover:scale-110" />
-          <span className="sr-only">Permit</span>
-        </Link>
-
-        <NavItem href="/" label="Dashboard">
+        <NavItem href="/" label="Home">
           <Home className="h-5 w-5" />
         </NavItem>
 
@@ -71,20 +69,28 @@ function DesktopNav() {
           <Users className="h-5 w-5" />
         </NavItem>
 
-        <NavItem href="/roles" label="Roles">
+        <NavItem href="/rbac" label="Permisos">
           <Shield className="h-5 w-5" />
-        </NavItem>
-
-        <NavItem href="/resources" label="Recursos">
-          <FileText className="h-5 w-5" />
-        </NavItem>
-
-        <NavItem href="/permissions" label="Permisos">
-          <Key className="h-5 w-5" />
         </NavItem>
 
         <NavItem href="/assignments" label="Asignaciones">
           <UserCheck className="h-5 w-5" />
+        </NavItem>
+
+        <NavItem href="/org-chart" label="Organigrama">
+          <Network className="h-5 w-5" />
+        </NavItem>
+
+        <NavItem href="/absences" label="Ausentismos">
+          <Calendar className="h-5 w-5" />
+        </NavItem>
+
+        <NavItem href="/performance" label="Performance">
+          <TrendingUp className="h-5 w-5" />
+        </NavItem>
+
+        <NavItem href="/audit" label="Auditoría">
+          <FileSearch className="h-5 w-5" />
         </NavItem>
       </nav>
       <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
@@ -109,17 +115,10 @@ function MobileNav() {
         <nav className="grid gap-6 text-lg font-medium">
           <Link
             href="/"
-            className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
-          >
-            <Shield className="h-5 w-5 transition-all group-hover:scale-110" />
-            <span className="sr-only">Permit</span>
-          </Link>
-          <Link
-            href="/"
             className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
           >
             <Home className="h-5 w-5" />
-            Dashboard
+            Home
           </Link>
           <Link
             href="/users"
@@ -129,24 +128,10 @@ function MobileNav() {
             Usuarios
           </Link>
           <Link
-            href="/roles"
+            href="/rbac"
             className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
           >
             <Shield className="h-5 w-5" />
-            Roles
-          </Link>
-          <Link
-            href="/resources"
-            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-          >
-            <FileText className="h-5 w-5" />
-            Recursos
-          </Link>
-          <Link
-            href="/permissions"
-            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-          >
-            <Key className="h-5 w-5" />
             Permisos
           </Link>
           <Link
@@ -155,6 +140,34 @@ function MobileNav() {
           >
             <UserCheck className="h-5 w-5" />
             Asignaciones
+          </Link>
+          <Link
+            href="/org-chart"
+            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+          >
+            <Network className="h-5 w-5" />
+            Organigrama
+          </Link>
+          <Link
+            href="/absences"
+            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+          >
+            <Calendar className="h-5 w-5" />
+            Ausentismos
+          </Link>
+          <Link
+            href="/performance"
+            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+          >
+            <TrendingUp className="h-5 w-5" />
+            Performance
+          </Link>
+          <Link
+            href="/audit"
+            className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+          >
+            <FileSearch className="h-5 w-5" />
+            Auditoría
           </Link>
           <Link
             href="/settings"

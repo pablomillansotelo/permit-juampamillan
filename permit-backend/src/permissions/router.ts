@@ -17,7 +17,11 @@ export const permissions = new Elysia({ prefix: '/permissions' })
 			}
 		},
 		{
-			response: PermissionsModel.permissionsList
+			response: PermissionsModel.permissionsList,
+			detail: {
+				tags: ['permissions'],
+				summary: 'Obtener todos los permisos',
+			},
 		}
 	)
 
@@ -35,7 +39,11 @@ export const permissions = new Elysia({ prefix: '/permissions' })
 			}
 		},
 		{
-			response: PermissionsModel.permissionResponse
+			response: PermissionsModel.permissionResponse,
+			detail: {
+				tags: ['permissions'],
+				summary: 'Obtener un permiso por ID',
+			},
 		}
 	)
 
@@ -53,7 +61,11 @@ export const permissions = new Elysia({ prefix: '/permissions' })
 			}
 		},
 		{
-			response: PermissionsModel.permissionsList
+			response: PermissionsModel.permissionsList,
+			detail: {
+				tags: ['permissions'],
+				summary: 'Obtener permisos por recurso',
+			},
 		}
 	)
 
@@ -77,7 +89,11 @@ export const permissions = new Elysia({ prefix: '/permissions' })
 		},
 		{
 			body: PermissionsModel.createBody,
-			response: PermissionsModel.permissionResponse
+			response: PermissionsModel.permissionResponse,
+			detail: {
+				tags: ['permissions'],
+				summary: 'Crear un nuevo permiso para un recurso',
+			},
 		}
 	)
 
@@ -99,7 +115,11 @@ export const permissions = new Elysia({ prefix: '/permissions' })
 		},
 		{
 			body: PermissionsModel.updateBody,
-			response: PermissionsModel.permissionResponse
+			response: PermissionsModel.permissionResponse,
+			detail: {
+				tags: ['permissions'],
+				summary: 'Actualizar un permiso',
+			},
 		}
 	)
 
@@ -123,7 +143,11 @@ export const permissions = new Elysia({ prefix: '/permissions' })
 			response: t.Object({
 				message: t.String(),
 				permission: PermissionsModel.permissionResponse
-			})
+			}),
+			detail: {
+				tags: ['permissions'],
+				summary: 'Eliminar un permiso',
+			},
 		}
 	)
 	.compile()

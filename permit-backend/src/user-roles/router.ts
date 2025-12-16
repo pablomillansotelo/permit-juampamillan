@@ -34,7 +34,11 @@ export const userRoles = new Elysia({ prefix: '/user-roles' })
 					roleId: t.Number(),
 					createdAt: t.Date()
 				})
-			})
+			}),
+			detail: {
+				tags: ['user-roles'],
+				summary: 'Asignar un rol a un usuario',
+			},
 		}
 	)
 
@@ -66,7 +70,11 @@ export const userRoles = new Elysia({ prefix: '/user-roles' })
 					roleId: t.Number(),
 					createdAt: t.Date()
 				})
-			})
+			}),
+			detail: {
+				tags: ['user-roles'],
+				summary: 'Remover un rol de un usuario',
+			},
 		}
 	)
 
@@ -93,7 +101,11 @@ export const userRoles = new Elysia({ prefix: '/user-roles' })
 					roleDescription: t.Nullable(t.String()),
 					createdAt: t.Date()
 				})
-			)
+			),
+			detail: {
+				tags: ['user-roles'],
+				summary: 'Obtener todos los roles de un usuario',
+			},
 		}
 	)
 
@@ -121,7 +133,11 @@ export const userRoles = new Elysia({ prefix: '/user-roles' })
 					roleId: t.Number(),
 					roleName: t.Nullable(t.String())
 				})
-			)
+			),
+			detail: {
+				tags: ['user-roles'],
+				summary: 'Obtener todos los permisos de un usuario',
+			},
 		}
 	)
 
@@ -148,7 +164,11 @@ export const userRoles = new Elysia({ prefix: '/user-roles' })
 					roleId: t.Number(),
 					createdAt: t.Date()
 				})
-			)
+			),
+			detail: {
+				tags: ['user-roles'],
+				summary: 'Obtener todos los usuarios que tienen un rol',
+			},
 		}
 	)
 	.compile()

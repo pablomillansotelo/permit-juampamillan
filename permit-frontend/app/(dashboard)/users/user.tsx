@@ -7,9 +7,13 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
+import { ThemeToggleMenu } from '@/components/theme-toggle-menu';
 
 export async function User() {
   let session = await auth();
@@ -46,6 +50,8 @@ export async function User() {
         <DropdownMenuItem asChild>
           <Link href="/settings">Configuración</Link>
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <ThemeToggleMenu />
         <DropdownMenuSeparator />
         {user ? (
           <DropdownMenuItem>

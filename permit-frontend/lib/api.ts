@@ -377,7 +377,152 @@ export const availableApi = {
   },
 };
 
+// ==================== TIPOS DE AUSENCIA ====================
+
+export interface LeaveType {
+  id: number;
+  name: string;
+  code: string;
+  maxDaysPerYear?: number | null;
+  carryOverAllowed?: boolean | null;
+  requiresApproval?: boolean | null;
+  color?: string | null;
+}
+
+export interface CreateLeaveTypeInput {
+  name: string;
+  code: string;
+  maxDaysPerYear?: number;
+  carryOverAllowed?: boolean;
+  requiresApproval?: boolean;
+  color?: string;
+}
+
+export interface UpdateLeaveTypeInput {
+  name?: string;
+  code?: string;
+  maxDaysPerYear?: number;
+  carryOverAllowed?: boolean;
+  requiresApproval?: boolean;
+  color?: string;
+}
+
+export const leaveTypesApi = {
+  getAll: async (): Promise<LeaveType[]> => {
+    return fetchApi<LeaveType[]>('/leave-types');
+  },
+  getById: async (id: number): Promise<LeaveType> => {
+    return fetchApi<LeaveType>(`/leave-types/${id}`);
+  },
+  create: async (data: CreateLeaveTypeInput): Promise<LeaveType> => {
+    return fetchApi<LeaveType>('/leave-types', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  update: async (id: number, data: UpdateLeaveTypeInput): Promise<LeaveType> => {
+    return fetchApi<LeaveType>(`/leave-types/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  delete: async (id: number): Promise<{ message: string; leaveType: LeaveType }> => {
+    return fetchApi<{ message: string; leaveType: LeaveType }>(`/leave-types/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
+// ==================== SOLICITUDES DE AUSENCIA ====================
+
+export interface LeaveRequest {
+  id: number;
+  userId: number;
+  leaveTypeId: number;
+  startDate: string;
+  endDate: string;
+  daysCount: number;
+  reason?: string | null;
+  status: string; // pending, approved, rejected
+  approvedBy?: number | null;
+  approvedAt?: string | null;
+  rejectionReason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateLeaveRequestInput {
+  userId: number;
+  leaveTypeId: number;
+  startDate: string;
+  endDate: string;
+  reason?: string;
+}
+
+export interface ApproveLeaveRequestInput {
+  approvedBy: number;
+}
+
+export interface RejectLeaveRequestInput {
+  approvedBy: number;
+  rejectionReason: string;
+}
+
+export const leaveRequestsApi = {
+  getAll: async (filters?: { userId?: number; status?: string; startDate?: string; endDate?: string }): Promise<LeaveRequest[]> => {
+    const params = new URLSearchParams();
+    if (filters?.userId) params.set('user_id', filters.userId.toString());
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.startDate) params.set('start_date', filters.startDate);
+    if (filters?.endDate) params.set('end_date', filters.endDate);
+    const query = params.toString();
+    return fetchApi<LeaveRequest[]>(`/leave-requests${query ? '?' + query : ''}`);
+  },
+  getById: async (id: number): Promise<LeaveRequest> => {
+    return fetchApi<LeaveRequest>(`/leave-requests/${id}`);
+  },
+  create: async (data: CreateLeaveRequestInput): Promise<LeaveRequest> => {
+    return fetchApi<LeaveRequest>('/leave-requests', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  approve: async (id: number, data: ApproveLeaveRequestInput): Promise<LeaveRequest> => {
+    return fetchApi<LeaveRequest>(`/leave-requests/${id}/approve`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  reject: async (id: number, data: RejectLeaveRequestInput): Promise<LeaveRequest> => {
+    return fetchApi<LeaveRequest>(`/leave-requests/${id}/reject`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
 // ==================== USER ROLES ====================
+
+// ==================== ORGANIGRAMA ====================
+
+export interface OrgChartNode {
+  id: number;
+  name: string;
+  email: string;
+  positionId?: number | null;
+  departmentId?: number | null;
+  managerId?: number | null;
+  subordinates: OrgChartNode[];
+}
+
+export const orgChartApi = {
+  getFull: async (): Promise<OrgChartNode[]> => {
+    return fetchApi<OrgChartNode[]>('/org-chart');
+  },
+  getFromUser: async (userId: number): Promise<{ user: User; subordinates: OrgChartNode[] }> => {
+    return fetchApi<{ user: User; subordinates: OrgChartNode[] }>(`/org-chart?userId=${userId}`);
+  },
+};
 
 export const userRolesApi = {
   assign: async (
@@ -418,4 +563,317 @@ export const userRolesApi = {
     return fetchApi<UserRole[]>(`/user-roles/role/${roleId}`);
   },
 };
+
+// ==================== PERFORMANCE - INDICATORS ====================
+
+export interface PerformanceIndicator {
+  id: number;
+  name: string;
+  description?: string | null;
+  type: 'numeric' | 'percentage' | 'boolean' | 'text';
+  unit?: string | null;
+  targetValue?: number | null;
+  weight?: number | null;
+  category?: string | null;
+  isActive: boolean;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
+
+export interface CreateIndicatorInput {
+  name: string;
+  description?: string;
+  type: 'numeric' | 'percentage' | 'boolean' | 'text';
+  unit?: string;
+  targetValue?: number;
+  weight?: number;
+  category?: string;
+  isActive?: boolean;
+}
+
+export interface UpdateIndicatorInput {
+  name?: string;
+  description?: string;
+  type?: 'numeric' | 'percentage' | 'boolean' | 'text';
+  unit?: string;
+  targetValue?: number;
+  weight?: number;
+  category?: string;
+  isActive?: boolean;
+}
+
+export const indicatorsApi = {
+  getAll: async (activeOnly?: boolean): Promise<PerformanceIndicator[]> => {
+    const url = activeOnly 
+      ? '/v1/performance/indicators?activeOnly=true'
+      : '/v1/performance/indicators';
+    return fetchApi<PerformanceIndicator[]>(url);
+  },
+  getById: async (id: number): Promise<PerformanceIndicator> => {
+    return fetchApi<PerformanceIndicator>(`/v1/performance/indicators/${id}`);
+  },
+  create: async (data: CreateIndicatorInput): Promise<PerformanceIndicator> => {
+    return fetchApi<PerformanceIndicator>('/v1/performance/indicators', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  update: async (id: number, data: UpdateIndicatorInput): Promise<PerformanceIndicator> => {
+    return fetchApi<PerformanceIndicator>(`/v1/performance/indicators/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  delete: async (id: number): Promise<{ message: string }> => {
+    return fetchApi<{ message: string }>(`/v1/performance/indicators/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
+// ==================== PERFORMANCE - EVALUATIONS ====================
+
+export interface EvaluationScore {
+  id: number;
+  evaluationId: number;
+  indicatorId: number;
+  value: number;
+  targetValue?: number | null;
+  achievementPercentage?: number | null;
+  notes?: string | null;
+}
+
+export interface Evaluation {
+  id: number;
+  userId: number;
+  evaluatorId: number;
+  periodType: 'monthly' | 'quarterly' | 'annual';
+  periodStart: string;
+  periodEnd: string;
+  status: 'draft' | 'submitted' | 'reviewed' | 'finalized';
+  overallScore?: number | null;
+  comments?: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  scores?: EvaluationScore[];
+}
+
+export interface CreateEvaluationInput {
+  userId: number;
+  evaluatorId: number;
+  periodType: 'monthly' | 'quarterly' | 'annual';
+  periodStart: string;
+  periodEnd: string;
+  comments?: string;
+  scores?: Array<{
+    indicatorId: number;
+    value: number;
+    targetValue?: number;
+    notes?: string;
+  }>;
+}
+
+export interface UpdateEvaluationInput {
+  status?: 'draft' | 'submitted' | 'reviewed' | 'finalized';
+  overallScore?: number;
+  comments?: string;
+  scores?: Array<{
+    indicatorId: number;
+    value: number;
+    targetValue?: number;
+    notes?: string;
+  }>;
+}
+
+export interface PerformanceSummary {
+  userId: number;
+  periodType?: string;
+  averageScore: number;
+  totalEvaluations: number;
+  evaluations: Evaluation[];
+  trends: Array<{
+    period: string;
+    score: number;
+  }>;
+}
+
+export const evaluationsApi = {
+  getAll: async (filters?: {
+    userId?: number;
+    evaluatorId?: number;
+    status?: string;
+    periodType?: string;
+  }): Promise<Evaluation[]> => {
+    const params = new URLSearchParams();
+    if (filters?.userId) params.set('userId', filters.userId.toString());
+    if (filters?.evaluatorId) params.set('evaluatorId', filters.evaluatorId.toString());
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.periodType) params.set('periodType', filters.periodType);
+    
+    const query = params.toString();
+    return fetchApi<Evaluation[]>(`/v1/performance/evaluations${query ? `?${query}` : ''}`);
+  },
+  getById: async (id: number): Promise<Evaluation> => {
+    return fetchApi<Evaluation>(`/v1/performance/evaluations/${id}`);
+  },
+  create: async (data: CreateEvaluationInput): Promise<Evaluation> => {
+    return fetchApi<Evaluation>('/v1/performance/evaluations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  update: async (id: number, data: UpdateEvaluationInput): Promise<Evaluation> => {
+    return fetchApi<Evaluation>(`/v1/performance/evaluations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  submit: async (id: number): Promise<Evaluation> => {
+    return fetchApi<Evaluation>(`/v1/performance/evaluations/${id}/submit`, {
+      method: 'POST',
+    });
+  },
+  finalize: async (id: number): Promise<Evaluation> => {
+    return fetchApi<Evaluation>(`/v1/performance/evaluations/${id}/finalize`, {
+      method: 'POST',
+    });
+  },
+  getUserSummary: async (userId: number, periodType?: string): Promise<PerformanceSummary> => {
+    const url = periodType
+      ? `/v1/performance/evaluations/user/${userId}/summary?periodType=${periodType}`
+      : `/v1/performance/evaluations/user/${userId}/summary`;
+    return fetchApi<PerformanceSummary>(url);
+  },
+};
+
+// ==================== NOTIFICACIONES ====================
+
+export interface Notification {
+  id: number;
+  userId: number;
+  type: string;
+  title: string;
+  message: string;
+  data?: any;
+  readAt?: string | Date | null;
+  actionUrl?: string | null;
+  createdAt: string | Date;
+}
+
+export interface NotificationPreference {
+  id: number;
+  userId: number;
+  channel: 'email' | 'in-app' | 'push';
+  notificationType: string;
+  enabled: boolean;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
+
+export interface UpdateNotificationPreferenceInput {
+  channel: 'email' | 'in-app' | 'push';
+  notificationType: string;
+  enabled: boolean;
+}
+
+export const notificationsApi = {
+  getAll: async (userId: number, filters?: { unreadOnly?: boolean; limit?: number }): Promise<Notification[]> => {
+    const params = new URLSearchParams();
+    params.set('userId', userId.toString());
+    if (filters?.unreadOnly) params.set('unreadOnly', 'true');
+    if (filters?.limit) params.set('limit', filters.limit.toString());
+    return fetchApi<Notification[]>(`/v1/notifications?${params.toString()}`);
+  },
+  getUnreadCount: async (userId: number): Promise<{ count: number }> => {
+    return fetchApi<{ count: number }>(`/v1/notifications/unread-count?userId=${userId}`);
+  },
+  markAsRead: async (id: number, userId: number): Promise<Notification> => {
+    return fetchApi<Notification>(`/v1/notifications/${id}/read?userId=${userId}`, {
+      method: 'PUT',
+    });
+  },
+  markAllAsRead: async (userId: number): Promise<{ message: string }> => {
+    return fetchApi<{ message: string }>(`/v1/notifications/read-all?userId=${userId}`, {
+      method: 'PUT',
+    });
+  },
+  getPreferences: async (userId: number): Promise<NotificationPreference[]> => {
+    return fetchApi<NotificationPreference[]>(`/v1/notifications/preferences?userId=${userId}`);
+  },
+  updatePreference: async (userId: number, data: UpdateNotificationPreferenceInput): Promise<NotificationPreference> => {
+    return fetchApi<NotificationPreference>(`/v1/notifications/preferences?userId=${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
+// ==================== AUDITORÍA ====================
+
+export interface AuditLog {
+  id: number;
+  userId?: number | null;
+  action: string;
+  entityType: string;
+  entityId?: number | null;
+  changes?: {
+    before?: any;
+    after?: any;
+  } | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  metadata?: any;
+  createdAt: string | Date;
+}
+
+export interface AuditLogFilters {
+  userId?: number;
+  action?: string;
+  entityType?: string;
+  entityId?: number;
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface AuditLogsResponse {
+  logs: AuditLog[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+}
+
+export const auditLogsApi = {
+  getAll: async (filters?: AuditLogFilters): Promise<AuditLogsResponse> => {
+    const params = new URLSearchParams();
+    if (filters?.userId) params.set('userId', filters.userId.toString());
+    if (filters?.action) params.set('action', filters.action);
+    if (filters?.entityType) params.set('entityType', filters.entityType);
+    if (filters?.entityId) params.set('entityId', filters.entityId.toString());
+    if (filters?.startDate) params.set('startDate', filters.startDate);
+    if (filters?.endDate) params.set('endDate', filters.endDate);
+    if (filters?.limit) params.set('limit', filters.limit.toString());
+    if (filters?.offset) params.set('offset', filters.offset.toString());
+    
+    const query = params.toString();
+    return fetchApi<AuditLogsResponse>(`/v1/audit-logs${query ? `?${query}` : ''}`);
+  },
+  getByEntity: async (type: string, id: number, limit?: number): Promise<AuditLog[]> => {
+    const url = limit
+      ? `/v1/audit-logs/entity/${type}/${id}?limit=${limit}`
+      : `/v1/audit-logs/entity/${type}/${id}`;
+    return fetchApi<AuditLog[]>(url);
+  },
+  getByUser: async (userId: number, limit?: number): Promise<AuditLog[]> => {
+    const url = limit
+      ? `/v1/audit-logs/user/${userId}?limit=${limit}`
+      : `/v1/audit-logs/user/${userId}`;
+    return fetchApi<AuditLog[]>(url);
+  },
+};
+
 

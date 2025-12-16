@@ -17,7 +17,11 @@ export const resources = new Elysia({ prefix: '/resources' })
 			}
 		},
 		{
-			response: ResourcesModel.resourcesList
+			response: ResourcesModel.resourcesList,
+			detail: {
+				tags: ['resources'],
+				summary: 'Obtener todos los recursos',
+			},
 		}
 	)
 
@@ -35,7 +39,11 @@ export const resources = new Elysia({ prefix: '/resources' })
 			}
 		},
 		{
-			response: ResourcesModel.resourceResponse
+			response: ResourcesModel.resourceResponse,
+			detail: {
+				tags: ['resources'],
+				summary: 'Obtener un recurso por ID',
+			},
 		}
 	)
 
@@ -57,7 +65,11 @@ export const resources = new Elysia({ prefix: '/resources' })
 		},
 		{
 			body: ResourcesModel.createBody,
-			response: ResourcesModel.resourceResponse
+			response: ResourcesModel.resourceResponse,
+			detail: {
+				tags: ['resources'],
+				summary: 'Crear un nuevo recurso',
+			},
 		}
 	)
 
@@ -79,7 +91,11 @@ export const resources = new Elysia({ prefix: '/resources' })
 		},
 		{
 			body: ResourcesModel.updateBody,
-			response: ResourcesModel.resourceResponse
+			response: ResourcesModel.resourceResponse,
+			detail: {
+				tags: ['resources'],
+				summary: 'Actualizar un recurso',
+			},
 		}
 	)
 
@@ -103,7 +119,11 @@ export const resources = new Elysia({ prefix: '/resources' })
 			response: t.Object({
 				message: t.String(),
 				resource: ResourcesModel.resourceResponse
-			})
+			}),
+			detail: {
+				tags: ['resources'],
+				summary: 'Eliminar un recurso',
+			},
 		}
 	)
 	.compile()

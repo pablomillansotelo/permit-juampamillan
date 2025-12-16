@@ -4,20 +4,41 @@ import { UsersModel } from './model.js'
 
 export const users = new Elysia({ prefix: '/users' })
 	/**
-	 * GET /users - Obtener todos los usuarios
+	 * GET /users - Obtener todos los usuarios con filtros opcionales
 	 */
 	.get(
 		'/',
-		async () => {
+		async ({ query }) => {
 			try {
-				const allUsers = await UsersService.getAllUsers()
+				const filters: any = {}
+				const queryParams = query as any
+				if (queryParams?.department_id) filters.departmentId = Number(queryParams.department_id)
+				if (queryParams?.position_id) filters.positionId = Number(queryParams.position_id)
+				if (queryParams?.status) filters.status = queryParams.status as string
+				if (queryParams?.manager_id) filters.managerId = Number(queryParams.manager_id)
+				if (queryParams?.employment_type) filters.employmentType = queryParams.employment_type as string
+				if (queryParams?.search) filters.search = queryParams.search as string
+				
+				const allUsers = await UsersService.getAllUsers(Object.keys(filters).length > 0 ? filters : undefined)
 				return allUsers
 			} catch (error: any) {
 				throw new Error(error.message)
 			}
 		},
 		{
-			response: UsersModel.usersList
+			query: t.Object({
+				department_id: t.Optional(t.String()),
+				position_id: t.Optional(t.String()),
+				status: t.Optional(t.String()),
+				manager_id: t.Optional(t.String()),
+				employment_type: t.Optional(t.String()),
+				search: t.Optional(t.String()),
+			}),
+			response: UsersModel.usersList,
+			detail: {
+				tags: ['users'],
+				summary: 'Obtener todos los usuarios con filtros opcionales',
+			},
 		}
 	)
 
@@ -35,7 +56,11 @@ export const users = new Elysia({ prefix: '/users' })
 			}
 		},
 		{
-			response: UsersModel.userResponse
+			response: UsersModel.userResponse,
+			detail: {
+				tags: ['users'],
+				summary: 'Obtener un usuario por ID',
+			},
 		}
 	)
 
@@ -57,7 +82,11 @@ export const users = new Elysia({ prefix: '/users' })
 		},
 		{
 			body: UsersModel.createBody,
-			response: UsersModel.userResponse
+			response: UsersModel.userResponse,
+			detail: {
+				tags: ['users'],
+				summary: 'Crear un nuevo usuario',
+			},
 		}
 	)
 
@@ -79,7 +108,11 @@ export const users = new Elysia({ prefix: '/users' })
 		},
 		{
 			body: UsersModel.updateBody,
-			response: UsersModel.userResponse
+			response: UsersModel.userResponse,
+			detail: {
+				tags: ['users'],
+				summary: 'Actualizar un usuario',
+			},
 		}
 	)
 
@@ -103,7 +136,11 @@ export const users = new Elysia({ prefix: '/users' })
 			response: t.Object({
 				message: t.String(),
 				user: UsersModel.userResponse
-			})
+			}),
+			detail: {
+				tags: ['users'],
+				summary: 'Eliminar un usuario',
+			},
 		}
 	)
 
@@ -128,7 +165,85 @@ export const users = new Elysia({ prefix: '/users' })
 		},
 		{
 			body: UsersModel.signInBody,
-			response: UsersModel.signInResponse
+			response: UsersModel.signInResponse,
+			detail: {
+				tags: ['users'],
+				summary: 'Autenticación de usuario',
+			},
+		}
+	)
+
+	/**
+	 * GET /users/:id/hierarchy - Obtener jerarquía (manager y subordinados)
+	 */
+	.get(
+		'/:id/hierarchy',
+		async ({ params }) => {
+			try {
+				const hierarchy = await UsersService.getHierarchy(Number(params.id))
+				return hierarchy
+			} catch (error: any) {
+				throw new Error(error.message)
+			}
+		},
+		{
+			response: t.Object({
+				user: UsersModel.userResponse,
+				manager: t.Nullable(UsersModel.userResponse),
+				subordinates: t.Array(UsersModel.userResponse),
+			}),
+			detail: {
+				tags: ['users'],
+				summary: 'Obtener jerarquía (manager y subordinados)',
+			},
+		}
+	)
+
+	/**
+	 * GET /users/:id/subordinates - Obtener subordinados directos e indirectos
+	 */
+	.get(
+		'/:id/subordinates',
+		async ({ params, query }) => {
+			try {
+				const includeIndirect = query.include_indirect !== 'false'
+				const subordinates = await UsersService.getSubordinates(Number(params.id), includeIndirect)
+				return subordinates
+			} catch (error: any) {
+				throw new Error(error.message)
+			}
+		},
+		{
+			query: t.Object({
+				include_indirect: t.Optional(t.String()),
+			}),
+			response: t.Array(UsersModel.userResponse),
+			detail: {
+				tags: ['users'],
+				summary: 'Obtener subordinados directos e indirectos',
+			},
+		}
+	)
+
+	/**
+	 * GET /users/:id/ancestors - Obtener manager y superiores
+	 */
+	.get(
+		'/:id/ancestors',
+		async ({ params }) => {
+			try {
+				const ancestors = await UsersService.getAncestors(Number(params.id))
+				return ancestors
+			} catch (error: any) {
+				throw new Error(error.message)
+			}
+		},
+		{
+			response: t.Array(UsersModel.userResponse),
+			detail: {
+				tags: ['users'],
+				summary: 'Obtener manager y superiores',
+			},
 		}
 	)
 	.compile()
