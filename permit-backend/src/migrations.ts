@@ -2,6 +2,12 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { migrate } from 'drizzle-orm/neon-http/migrator';
 import * as schema from './schema.js';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// Obtener el directorio actual para paths absolutos
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Flag para asegurar que las migraciones solo se ejecuten una vez
 let migrationsRun = false;
@@ -35,47 +41,83 @@ export async function runMigrations(): Promise<void> {
       const sql = neon(process.env.DATABASE_URL!);
       const db = drizzle(sql, { schema });
 
-      // Verificar si existe la carpeta de migraciones
-      const migrationsFolder = './drizzle';
-      
-      try {
-        // Intentar ejecutar migraciones si existen
-        console.log('🔄 Ejecutando migraciones desde schemas...');
-        await migrate(db, { migrationsFolder });
-        migrationsRun = true;
-        console.log('✅ Migraciones ejecutadas correctamente desde schemas');
-        return;
-      } catch (error: any) {
-        // Si no hay migraciones generadas, es normal en desarrollo
-        if (error.message?.includes('ENOENT') || error.message?.includes('not found') || error.message?.includes('No such file')) {
-          console.log('ℹ️ No se encontraron migraciones generadas.');
-        } else {
-          throw error;
+      // Usar path absoluto para las migraciones (necesario en Vercel)
+      // Intentar diferentes ubicaciones posibles
+      const possiblePaths = [
+        join(__dirname, '../drizzle'), // Desde src/ hacia drizzle/
+        join(process.cwd(), 'drizzle'), // Desde la raíz del proyecto
+        './drizzle', // Path relativo (fallback)
+      ];
+
+      let migrationsExecuted = false;
+      let lastError: Error | null = null;
+
+      for (const migrationsFolder of possiblePaths) {
+        try {
+          console.log(`🔄 Intentando ejecutar migraciones desde: ${migrationsFolder}`);
+          await migrate(db, { migrationsFolder });
+          migrationsRun = true;
+          migrationsExecuted = true;
+          console.log('✅ Migraciones ejecutadas correctamente');
+          return;
+        } catch (error: any) {
+          lastError = error;
+          // Si el error es por archivo no encontrado, intentar siguiente path
+          if (
+            error.message?.includes('ENOENT') ||
+            error.message?.includes('not found') ||
+            error.message?.includes('No such file') ||
+            error.message?.includes('_journal.json')
+          ) {
+            console.log(`ℹ️ No se encontraron migraciones en: ${migrationsFolder}`);
+            continue; // Intentar siguiente path
+          } else {
+            // Otro tipo de error, lanzarlo
+            throw error;
+          }
         }
       }
 
-      // Si no hay migraciones, solo loguear (no fallar)
-      // El desarrollador debe ejecutar: bun run db:push o bun run db:generate
-      console.log('ℹ️ No se encontraron migraciones generadas.');
-      console.log('💡 Para sincronizar la BD con schemas, ejecuta:');
-      console.log('   - Desarrollo: bun run db:push');
-      console.log('   - Producción: bun run db:generate && bun run db:migrate');
-      
-      // En desarrollo, podemos continuar sin error
-      // En producción, esto debería fallar para forzar migraciones explícitas
-      migrationsRun = true;
+      // Si llegamos aquí, no se encontraron migraciones en ningún path
+      if (!migrationsExecuted) {
+        console.log('ℹ️ No se encontraron migraciones generadas en ninguna ubicación.');
+        console.log('💡 Paths intentados:', possiblePaths.join(', '));
+        console.log('💡 Para sincronizar la BD con schemas, ejecuta:');
+        console.log('   - Desarrollo: bun run db:push');
+        console.log('   - Producción: bun run db:generate && bun run db:migrate');
+        
+        // En producción en Vercel, si no hay migraciones, usar el sistema de migraciones SQL directo
+        // que ya está implementado en el código (no fallar)
+        if (process.env.VERCEL) {
+          console.log('⚠️ Ejecutando en Vercel sin migraciones Drizzle. Usando migraciones SQL directas.');
+          migrationsRun = true;
+          return;
+        }
+        
+        // En desarrollo, podemos continuar sin error
+        migrationsRun = true;
+      }
       
     } catch (error: any) {
       console.error('❌ Error al ejecutar migraciones:', error);
+      
+      // En Vercel, no fallar si no encuentra las migraciones
+      // El sistema usará migraciones SQL directas que ya están implementadas
+      if (process.env.VERCEL) {
+        console.warn('⚠️ Error en migraciones Drizzle en Vercel. Continuando con migraciones SQL directas.');
+        migrationsRun = true;
+        return;
+      }
+      
       // En desarrollo, no fallar - permitir que la app continúe
-      // En producción, esto debería fallar
-      if (process.env.NODE_ENV === 'production') {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('⚠️ Continuando sin migraciones (modo desarrollo)');
+        migrationsRun = true;
+      } else {
+        // En producción (pero no Vercel), fallar para forzar migraciones explícitas
         migrationsRun = false;
         migrationsPromise = null;
         throw error;
-      } else {
-        console.warn('⚠️ Continuando sin migraciones (modo desarrollo)');
-        migrationsRun = true;
       }
     }
   })();
