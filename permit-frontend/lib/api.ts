@@ -509,6 +509,7 @@ export interface OrgChartNode {
   id: number;
   name: string;
   email: string;
+  employeeId?: string | null;
   positionId?: number | null;
   departmentId?: number | null;
   managerId?: number | null;

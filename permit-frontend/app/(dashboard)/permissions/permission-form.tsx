@@ -5,7 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { FormField, FormError } from '@/components/ui/form';
 import {
   Permission,
@@ -33,6 +39,8 @@ export function PermissionForm({
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<PermissionFormData>({
     resolver: zodResolver(permissionSchema),
@@ -43,6 +51,8 @@ export function PermissionForm({
       description: permission?.description || '',
     },
   });
+
+  const selectedResourceId = watch('resourceId');
 
   const onSubmit = async (data: PermissionFormData) => {
     try {
@@ -99,16 +109,19 @@ export function PermissionForm({
       <FormField>
         <Label htmlFor="resourceId">Recurso *</Label>
         <Select
-          id="resourceId"
-          {...register('resourceId', { valueAsNumber: true })}
-          aria-invalid={errors.resourceId ? 'true' : 'false'}
+          value={selectedResourceId?.toString() || ''}
+          onValueChange={(value) => setValue('resourceId', Number(value), { shouldValidate: true })}
         >
-          <option value="">Selecciona un recurso</option>
-          {resources.map((resource) => (
-            <option key={resource.id} value={resource.id}>
-              {resource.name}
-            </option>
-          ))}
+          <SelectTrigger id="resourceId" aria-invalid={errors.resourceId ? 'true' : 'false'}>
+            <SelectValue placeholder="Selecciona un recurso" />
+          </SelectTrigger>
+          <SelectContent>
+            {resources.map((resource) => (
+              <SelectItem key={resource.id} value={resource.id.toString()}>
+                {resource.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
         </Select>
         {errors.resourceId && <FormError>{errors.resourceId.message}</FormError>}
       </FormField>

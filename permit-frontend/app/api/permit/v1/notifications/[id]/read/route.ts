@@ -6,7 +6,7 @@ const API_KEY = process.env.PERMIT_API_KEY || '';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -14,10 +14,11 @@ export async function PUT(
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     }
 
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId') || '1'; // Temporal
 
-    const url = new URL(`${API_BASE_URL}/v1/notifications/${params.id}/read`);
+    const url = new URL(`${API_BASE_URL}/v1/notifications/${id}/read`);
     url.searchParams.set('userId', userId);
 
     const response = await fetch(url.toString(), {

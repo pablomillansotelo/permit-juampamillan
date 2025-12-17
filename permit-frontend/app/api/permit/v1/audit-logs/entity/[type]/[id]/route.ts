@@ -6,7 +6,7 @@ const API_KEY = process.env.PERMIT_API_KEY || '';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { type: string; id: string } }
+  { params }: { params: Promise<{ type: string; id: string }> }
 ) {
   try {
     const session = await auth();
@@ -14,8 +14,9 @@ export async function GET(
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     }
 
+    const { type, id } = await params;
     const { searchParams } = new URL(request.url);
-    const url = new URL(`${API_BASE_URL}/v1/audit-logs/entity/${params.type}/${params.id}`);
+    const url = new URL(`${API_BASE_URL}/v1/audit-logs/entity/${type}/${id}`);
     
     if (searchParams.get('limit')) {
       url.searchParams.set('limit', searchParams.get('limit')!);

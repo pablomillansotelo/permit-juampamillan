@@ -6,7 +6,7 @@ const API_KEY = process.env.PERMIT_API_KEY || '';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const session = await auth();
@@ -14,8 +14,9 @@ export async function GET(
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     }
 
+    const { userId } = await params;
     const { searchParams } = new URL(request.url);
-    const url = new URL(`${API_BASE_URL}/v1/performance/evaluations/user/${params.userId}/summary`);
+    const url = new URL(`${API_BASE_URL}/v1/performance/evaluations/user/${userId}/summary`);
     
     if (searchParams.get('periodType')) {
       url.searchParams.set('periodType', searchParams.get('periodType')!);

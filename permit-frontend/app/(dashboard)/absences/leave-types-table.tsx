@@ -32,7 +32,6 @@ interface LeaveTypesTableProps {
 export function LeaveTypesTable({ leaveTypes, onRefresh }: LeaveTypesTableProps) {
   const [editingType, setEditingType] = useState<LeaveType | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const handleEdit = (type: LeaveType) => {
     setEditingType(type);
@@ -46,8 +45,6 @@ export function LeaveTypesTable({ leaveTypes, onRefresh }: LeaveTypesTableProps)
       onRefresh();
     } catch (error: any) {
       toast.error(error.message || 'Error al eliminar tipo de ausencia');
-    } finally {
-      setDeletingId(null);
     }
   };
 
@@ -122,14 +119,21 @@ export function LeaveTypesTable({ leaveTypes, onRefresh }: LeaveTypesTableProps)
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setDeletingId(type.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <DeleteConfirmDialog
+                        title="Eliminar Tipo de Ausencia"
+                        description={`¿Estás seguro de que deseas eliminar el tipo de ausencia "${type.name}"? Esta acción no se puede deshacer.`}
+                        onConfirm={() => handleDelete(type.id)}
+                        itemName={type.name}
+                        trigger={
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -152,14 +156,6 @@ export function LeaveTypesTable({ leaveTypes, onRefresh }: LeaveTypesTableProps)
           />
         </DialogContent>
       </Dialog>
-
-      <DeleteConfirmDialog
-        isOpen={deletingId !== null}
-        onClose={() => setDeletingId(null)}
-        onConfirm={() => deletingId && handleDelete(deletingId)}
-        title="Eliminar Tipo de Ausencia"
-        description="¿Estás seguro de que deseas eliminar este tipo de ausencia? Esta acción no se puede deshacer."
-      />
     </>
   );
 }

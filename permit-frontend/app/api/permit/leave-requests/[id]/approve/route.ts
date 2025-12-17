@@ -6,7 +6,7 @@ const API_KEY = process.env.PERMIT_API_KEY || '';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -14,9 +14,10 @@ export async function PUT(
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await request.json();
 
-    const response = await fetch(`${API_BASE_URL}/v1/leave-requests/${params.id}/approve`, {
+    const response = await fetch(`${API_BASE_URL}/v1/leave-requests/${id}/approve`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
