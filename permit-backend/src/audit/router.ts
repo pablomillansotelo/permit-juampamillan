@@ -2,6 +2,60 @@ import { Elysia, t } from 'elysia'
 import { AuditService } from './service.js'
 
 export const audit = new Elysia({ prefix: '/audit-logs' })
+	.post(
+		'/',
+		async ({ body, request }) => {
+			try {
+				// Si el caller no manda ip/userAgent, tomarlos del request
+				const ipAddress =
+					body.ipAddress ||
+					request.headers.get('x-forwarded-for') ||
+					request.headers.get('x-real-ip') ||
+					undefined
+				const userAgent = body.userAgent || request.headers.get('user-agent') || undefined
+
+				const created = await AuditService.createLog({
+					userId: body.userId ?? null,
+					action: body.action,
+					entityType: body.entityType,
+					entityId: body.entityId ?? null,
+					changes: body.changes,
+					ipAddress: ipAddress ? String(ipAddress) : undefined,
+					userAgent: userAgent ? String(userAgent) : undefined,
+					metadata: body.metadata,
+				})
+
+				if (!created) {
+					throw new Error('No se pudo crear el log de auditoría')
+				}
+
+				return created
+			} catch (error: any) {
+				throw new Error(error.message)
+			}
+		},
+		{
+			body: t.Object({
+				userId: t.Optional(t.Union([t.Numeric(), t.Null()])),
+				action: t.String(),
+				entityType: t.String(),
+				entityId: t.Optional(t.Union([t.Numeric(), t.Null()])),
+				changes: t.Optional(
+					t.Object({
+						before: t.Optional(t.Any()),
+						after: t.Optional(t.Any()),
+					})
+				),
+				ipAddress: t.Optional(t.String()),
+				userAgent: t.Optional(t.String()),
+				metadata: t.Optional(t.Any()),
+			}),
+			detail: {
+				tags: ['audit'],
+				summary: 'Crear un log de auditoría',
+			},
+		}
+	)
 	.get(
 		'/',
 		async ({ query }) => {

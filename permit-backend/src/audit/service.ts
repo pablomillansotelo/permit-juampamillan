@@ -1,6 +1,6 @@
 import { db } from '../db.js'
 import { auditLogs } from './schema.js'
-import { eq, and, desc, or, like } from 'drizzle-orm'
+import { eq, and, desc, gte, lte } from 'drizzle-orm'
 
 export interface CreateAuditLogInput {
 	userId?: number | null
@@ -79,10 +79,10 @@ export class AuditService {
 				conditions.push(eq(auditLogs.entityId, filters.entityId))
 			}
 			if (filters.startDate) {
-				conditions.push(eq(auditLogs.createdAt, filters.startDate) as any) // Simplificado, debería usar >=
+				conditions.push(gte(auditLogs.createdAt, new Date(filters.startDate)) as any)
 			}
 			if (filters.endDate) {
-				conditions.push(eq(auditLogs.createdAt, filters.endDate) as any) // Simplificado, debería usar <=
+				conditions.push(lte(auditLogs.createdAt, new Date(filters.endDate)) as any)
 			}
 
 			if (conditions.length > 0) {

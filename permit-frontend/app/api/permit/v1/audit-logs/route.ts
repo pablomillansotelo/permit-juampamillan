@@ -65,3 +65,40 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    }
+
+    const body = await request.json();
+
+    const response = await fetch(`${API_BASE_URL}/v1/audit-logs`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': API_KEY,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return NextResponse.json(
+        { error: errorData.message || 'Error al crear log de auditoría' },
+        { status: response.status }
+      );
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data, { status: 201 });
+  } catch (error: any) {
+    console.error('Error en POST /api/permit/v1/audit-logs:', error);
+    return NextResponse.json(
+      { error: error.message || 'Error al crear log de auditoría' },
+      { status: 500 }
+    );
+  }
+}
+
