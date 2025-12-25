@@ -69,43 +69,6 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">
-                  Autenticación segura
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 pt-4">
-              <div className="flex flex-col items-center space-y-2 text-center">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                  <Lock className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Seguro
-                </p>
-              </div>
-              <div className="flex flex-col items-center space-y-2 text-center">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                  <Key className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  RBAC
-                </p>
-              </div>
-              <div className="flex flex-col items-center space-y-2 text-center">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                  <Shield className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Confiable
-                </p>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
